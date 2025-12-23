@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MiTurno - Gestionar mi Cita</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        
+        .fade-in { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .status-badge {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            box-shadow: 0 10px 20px -5px rgba(34, 197, 94, 0.3);
+        }
+
+        .card-shadow {
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.05);
+        }
+
+        /* Estilo para botón deshabilitado */
+        .btn-disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            filter: grayscale(1);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 pb-10 px-4">
+
+    <div id="app" class="max-w-md mx-auto min-h-screen pt-8 fade-in">
+        
+        <!-- HEADER / MARCA -->
+        <header class="flex items-center justify-between mb-8 px-2">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
+                    <i data-lucide="calendar-days" class="w-6 h-6"></i>
+                </div>
+                <h1 class="font-black text-xl tracking-tight">MiTurno</h1>
+            </div>
+            <button onclick="window.print()" class="p-2 bg-white rounded-full shadow-sm text-slate-400">
+                <i data-lucide="share-2" class="w-5 h-5"></i>
+            </button>
+        </header>
+
+        <!-- ESTADO DEL TURNO -->
+        <div class="bg-white rounded-[2.5rem] p-8 card-shadow text-center mb-6 relative overflow-hidden border border-slate-50">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-green-50 rounded-full blur-3xl opacity-50"></div>
+            
+            <div class="status-badge w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i data-lucide="check-circle-2" class="text-white w-10 h-10"></i>
+            </div>
+            
+            <h2 class="text-2xl font-black text-slate-800 mb-2">¡Tu turno está confirmado!</h2>
+            <p class="text-slate-400 text-sm font-medium">Te esperamos en la fecha y hora pactada.</p>
+        </div>
+
+        <!-- DETALLES DE LA CITA -->
+        <div class="bg-white rounded-[2.5rem] p-6 card-shadow mb-6 border border-slate-50">
+            <h3 class="text-xs font-black text-slate-300 uppercase tracking-[0.2em] mb-6 ml-2">Detalles de la cita</h3>
+            
+            <div class="space-y-6">
+                <!-- Fecha y Hora -->
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-indigo-600">
+                        <i data-lucide="clock" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p id="display-date" class="text-lg font-black text-slate-800">Lunes, 15 de Octubre</p>
+                        <p id="display-time" class="text-sm font-bold text-indigo-500">14:30 hs (45 min)</p>
+                    </div>
+                </div>
+
+                <!-- Dirección / Mapa -->
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-indigo-600">
+                        <i data-lucide="map-pin" class="w-6 h-6"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-lg font-black text-slate-800 leading-tight">Barbería Elite Central</p>
+                        <p class="text-sm font-medium text-slate-400 mb-3">Av. Siempre Viva 742, CABA</p>
+                        <a href="https://maps.google.com" target="_blank" class="inline-flex items-center gap-2 text-xs font-black text-indigo-600 bg-indigo-50 px-4 py-2 rounded-full">
+                            VER EN GOOGLE MAPS
+                            <i data-lucide="external-link" class="w-3 h-3"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Servicio -->
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-indigo-600">
+                        <i data-lucide="scissors" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-lg font-black text-slate-800">Corte de Autor</p>
+                        <p class="text-sm font-bold text-slate-400">$4.500 (Abonas en el local)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACCIONES -->
+        <div class="space-y-3 px-2">
+            <button onclick="handleReprogram()" class="w-full py-5 bg-slate-900 text-white font-black rounded-[2rem] shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3">
+                <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                REPROGRAMAR CITA
+            </button>
+            
+            <button id="btn-cancel" onclick="handleCancel()" class="w-full py-5 bg-white text-red-500 border-2 border-red-50 font-black rounded-[2rem] shadow-sm active:scale-95 transition-all flex flex-col items-center justify-center">
+                <span class="flex items-center gap-3">
+                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                    CANCELAR TURNO
+                </span>
+                <span id="cancel-note" class="text-[10px] opacity-60 font-bold mt-1 uppercase tracking-tighter hidden">Solo hasta 2hs antes de la cita</span>
+            </button>
+        </div>
+
+        <!-- FOOTER HELP -->
+        <footer class="mt-12 text-center pb-8">
+            <p class="text-xs font-bold text-slate-300 uppercase tracking-widest mb-4">¿Tienes alguna duda?</p>
+            <a href="https://wa.me/123456789" class="inline-flex items-center gap-2 px-6 py-3 bg-white rounded-full shadow-sm border border-slate-100 text-xs font-black text-slate-600">
+                <i data-lucide="message-circle" class="w-4 h-4 text-green-500"></i>
+                CONTACTAR POR WHATSAPP
+            </a>
+        </footer>
+
+    </div>
+
+    <!-- MODAL DE CANCELACIÓN (CUSTOM ALERT) -->
+    <div id="modal-container" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 items-center justify-center p-6 hidden flex">
+        <div class="bg-white rounded-[3rem] p-8 w-full max-sm text-center pop-in">
+            <div class="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i data-lucide="alert-triangle" class="w-8 h-8"></i>
+            </div>
+            <h4 class="text-xl font-black text-slate-800 mb-2">¿Estás seguro?</h4>
+            <p id="modal-msg" class="text-sm text-slate-400 font-medium mb-8">Esta acción no se puede deshacer y perderás tu reserva.</p>
+            
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="closeModal()" class="py-4 bg-slate-100 text-slate-600 font-black rounded-2xl text-xs uppercase tracking-widest">
+                    VOLVER
+                </button>
+                <button id="modal-confirm-btn" onclick="confirmCancel()" class="py-4 bg-red-500 text-white font-black rounded-2xl text-xs uppercase tracking-widest shadow-lg shadow-red-100">
+                    SÍ, CANCELAR
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATOS MOCK ---
+        const turnData = {
+            date: "2025-10-15", 
+            time: "14:30",      
+            service: "Corte de Autor"
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            validateCancellationTime();
+        });
+
+        function validateCancellationTime() {
+            const btnCancel = document.getElementById('btn-cancel');
+            const cancelNote = document.getElementById('cancel-note');
+            
+            const appointmentDate = new Date(`${turnData.date}T${turnData.time}:00`);
+            const now = new Date();
+            const diffHours = (appointmentDate - now) / (1000 * 60 * 60);
+
+            if (diffHours < 2) {
+                btnCancel.onclick = null;
+                btnCancel.classList.add('btn-disabled');
+                cancelNote.classList.remove('hidden');
+                cancelNote.innerText = "No disponible (menos de 2hs)";
+            }
+        }
+
+        function handleReprogram() {
+            // Cambiado a index.html según solicitud
+            window.location.href = 'index.html'; 
+        }
+
+        function handleCancel() {
+            document.getElementById('modal-container').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-container').classList.add('hidden');
+        }
+
+        function confirmCancel() {
+            const btn = document.getElementById('modal-confirm-btn');
+            btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i>`;
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                document.getElementById('modal-msg').innerText = "Tu turno ha sido cancelado con éxito.";
+                document.getElementById('modal-msg').className = "text-sm text-green-600 font-bold mb-8";
+                btn.parentElement.innerHTML = `
+                    <button onclick="window.location.reload()" class="w-full py-4 bg-slate-900 text-white font-black rounded-2xl text-xs uppercase tracking-widest">
+                        ACEPTAR
+                    </button>
+                `;
+            }, 1500);
+        }
+    </script>
+</body>
+</html>

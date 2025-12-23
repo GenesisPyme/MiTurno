@@ -1,0 +1,14 @@
+{
+  "name": "miturnos-app",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "dotenv": "^16.0.3",
+    "mysql2": "^3.2.0"
+  }
+}
